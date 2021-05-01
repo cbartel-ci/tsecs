@@ -102,7 +102,11 @@ export class BitVector {
    * @return {boolean} true, if the given mask applies to this BitVector
    */
   public containsAll(other: BitVector): boolean {
-    for (let i = 0; i < this.chunks.length; i++) {
+    for (
+      let i = 0;
+      i < Math.min(this.chunks.length, other.chunks.length);
+      i++
+    ) {
       if ((this.chunks[i] & other.chunks[i]) !== other.chunks[i]) {
         return false;
       }
@@ -143,11 +147,20 @@ export class BitVector {
   }
 
   /**
-   * get the current capacity of this BitVector
+   * get the current capacity of this BitVector. This will always be a power of 2.
    * @return {number} capacity
    */
   public getCapacity(): number {
     return this.chunks.length * 32;
+  }
+
+  /**
+   * Set the maximum number of bits this vector can hold. If this is not a power of 2,
+   * the capacity will be set to the next larger power of 2.
+   * @param {number} capacity
+   */
+  public setCapacity(capacity: number) {
+    this.ensureCapacity(capacity);
   }
 
   /**
@@ -200,8 +213,8 @@ export class BitVector {
   }
 
   /**
-   * ensures, that this vector can hold the given number of bits. If needed,
-   * the actual capacity is doubled.
+   * ensures, that this vector can hold the given number of bits. The capactiy is always a
+   * power of 2.
    * @param {number} capacity
    * @private
    */

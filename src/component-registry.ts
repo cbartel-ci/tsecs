@@ -7,6 +7,8 @@ import {
 } from './';
 
 export class ComponentRegistry {
+  private static readonly INITIAL_COMPONENT_CAPACITY = 32;
+
   private readonly componentIdentityMap: Map<typeof Component, number>;
   private readonly entityCompositionMap: { [entityId: number]: BitVector };
   private readonly componentMapperMap: {
@@ -41,8 +43,9 @@ export class ComponentRegistry {
   public createComponentSet(
     componentSetBuilder: ComponentSetBuilder
   ): ComponentSet {
-    let componentSet = componentSetBuilder.build(component =>
-      this.getComponentId(component)
+    let componentSet = componentSetBuilder.build(
+      ComponentRegistry.INITIAL_COMPONENT_CAPACITY,
+      component => this.getComponentId(component)
     );
     this.componentSets.push(componentSet);
     return componentSet;
@@ -62,7 +65,9 @@ export class ComponentRegistry {
 
   private getEntityComposition(entityId: number): BitVector {
     if (!this.entityCompositionMap[entityId]) {
-      this.entityCompositionMap[entityId] = new BitVector();
+      this.entityCompositionMap[entityId] = new BitVector(
+        ComponentRegistry.INITIAL_COMPONENT_CAPACITY
+      );
     }
     return this.entityCompositionMap[entityId];
   }

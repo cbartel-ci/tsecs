@@ -27,6 +27,10 @@ export abstract class EntitySystem extends System {
     this._componentSet = world
       .getComponentRegistry()
       .createComponentSet(componentSetBuilder);
+    this._componentSet.onEntityAdd(entityId => this.onEntityAdd(entityId));
+    this._componentSet.onEntityRemove(entityId =>
+      this.onEntityRemove(entityId)
+    );
     super._init(world);
   }
 
@@ -37,4 +41,7 @@ export abstract class EntitySystem extends System {
   abstract initComponentSet(
     componentSetBuilder: ComponentSetBuilder
   ): ComponentSetBuilder;
+
+  onEntityAdd(_entity: number): void {}
+  onEntityRemove(_entity: number): void {}
 }

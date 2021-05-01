@@ -3,9 +3,11 @@ import { BitVector, Component } from './';
 export class ComponentSet {
   private activeEntities: number[] = [];
 
-  private readonly entities: BitVector = new BitVector();
+  private readonly entities = new BitVector();
   private readonly entityAddListeners: ((entityId: number) => void)[] = [];
   private readonly entityRemoveListeners: ((entityId: number) => void)[] = [];
+  private readonly entitiesAdded = new BitVector();
+  private readonly entitiesRemoved = new BitVector();
 
   private modified: boolean = false;
 
@@ -25,12 +27,17 @@ export class ComponentSet {
 
   public onCompositionChange(entityId: number, entityComposition: BitVector) {
     if (this.isInterested(entityComposition)) {
+      if (this.entities.get(entityId)) {
+        return;
+      }
       this.entities.set(entityId);
-      this.entityAddListeners.forEach(it => it(entityId));
+      this.entitiesAdded.set(entityId);
+      this.entitiesRemoved.clear(entityId);
       this.modified = true;
     } else if (this.entities.get(entityId)) {
       this.entities.clear(entityId);
-      this.entityRemoveListeners.forEach(it => it(entityId));
+      this.entitiesRemoved.set(entityId);
+      this.entitiesAdded.clear(entityId);
       this.modified = true;
     }
   }
@@ -48,6 +55,18 @@ export class ComponentSet {
   public processModifications() {
     if (this.modified) {
       this.activeEntities = this.entities.getBits();
+      this.entitiesAdded
+        .getBits()
+        .forEach(entity =>
+          this.entityAddListeners.forEach(listener => listener(entity))
+        );
+      this.entitiesAdded.reset();
+      this.entitiesRemoved
+        .getBits()
+        .forEach(entity =>
+          this.entityRemoveListeners.forEach(listener => listener(entity))
+        );
+      this.entitiesRemoved.reset();
     }
     this.modified = false;
   }
@@ -84,25 +103,26 @@ export class ComponentSetBuilder {
   }
 
   public build(
+    capacity: number,
     resolveComponentId: (component: typeof Component) => number
   ): ComponentSet {
     let allVector: BitVector | null = null;
     let anyVector: BitVector | null = null;
     let noneVector: BitVector | null = null;
     if (this.all.length > 0) {
-      allVector = new BitVector();
+      allVector = new BitVector(capacity);
       for (const component of this.all) {
         allVector.set(resolveComponentId(component));
       }
     }
     if (this.any.length > 0) {
-      anyVector = new BitVector();
+      anyVector = new BitVector(capacity);
       for (const component of this.any) {
         anyVector.set(resolveComponentId(component));
       }
     }
     if (this.none.length > 0) {
-      noneVector = new BitVector();
+      noneVector = new BitVector(capacity);
       for (const component of this.none) {
         noneVector.set(resolveComponentId(component));
       }

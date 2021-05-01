@@ -14,8 +14,8 @@ export class ComponentMapper<T extends Component> {
   }
 
   removeComponent(entityId: number): void {
-    delete this.components[entityId];
     this.removeComponentCallback(entityId);
+    delete this.components[entityId];
   }
 
   getComponent(entityId: number): T {
