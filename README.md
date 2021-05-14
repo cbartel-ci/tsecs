@@ -64,6 +64,18 @@ export class MoveSystem extends EntitySystem {
 And now create your world:
 ```typescript
 const world = new WorldBuilder().with(new MoveSystem()).build();
+
+const moveComponent = new MoveComponent();
+const transformComponent = new TransformComponent();
+transformComponent.x = 100;
+transformComponent.y = 100;
+
+const transformComponentMapper = world.getComponentMapper<TransformComponent>(TransformComponent);
+const moveComponentMapper = world.getComponentMapper<MoveComponent>(MoveComponent);
+
+const entity = world.createEntity();
+moveComponentMapper.addComponent(entity, moveComponent);
+transformComponentMapper.addComponent(entity, transformComponent);
 ```
 
 Now you only need to call the update method periodically and you're good to go:
