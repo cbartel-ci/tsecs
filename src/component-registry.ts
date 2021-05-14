@@ -63,6 +63,14 @@ export class ComponentRegistry {
     return this.componentMapperMap[componentId];
   }
 
+  public processEntityDelete(entity: number): void {
+    const composition = this.getEntityComposition(entity);
+    const componentIds = composition.getBits();
+    componentIds.forEach(componentId => {
+      this.componentMapperMap[componentId].removeComponent(entity, true);
+    });
+  }
+
   private getEntityComposition(entityId: number): BitVector {
     if (!this.entityCompositionMap[entityId]) {
       this.entityCompositionMap[entityId] = new BitVector(
@@ -81,11 +89,11 @@ export class ComponentRegistry {
           componentSet.onCompositionChange(entityId, composition);
         }
       },
-      (entityId: number) => {
+      (entityId: number, entityDelete) => {
         const composition = this.getEntityComposition(entityId);
         composition.clear(componentId);
         for (const componentSet of this.componentSets) {
-          componentSet.onCompositionChange(entityId, composition);
+          componentSet.onCompositionChange(entityId, composition, entityDelete);
         }
       }
     );

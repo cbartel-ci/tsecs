@@ -15,6 +15,7 @@ export class World {
   ) {}
 
   public update(dt: number): void {
+    this.entityRegistry.update();
     this.componentRegistry.update();
     this.systemRegistry.update(dt);
   }
@@ -31,8 +32,12 @@ export class World {
     return this.componentRegistry;
   }
 
-  createEntity(): number {
+  public createEntity(): number {
     return this.entityRegistry.createEntity();
+  }
+
+  public deleteEntity(entity: number): void {
+    this.entityRegistry.deleteEntity(entity);
   }
 
   getComponentMapper<T extends Component>(
@@ -49,6 +54,10 @@ export class WorldBuilder {
     const entityRegistry = new EntityRegistry();
     const systemRegistry = new SystemRegistry(this.systems);
     const componentRegistry = new ComponentRegistry();
+
+    entityRegistry.onEntityDelete(entity =>
+      componentRegistry.processEntityDelete(entity)
+    );
 
     const world = new World(entityRegistry, systemRegistry, componentRegistry);
 

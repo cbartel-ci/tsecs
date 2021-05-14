@@ -25,8 +25,12 @@ export class ComponentSet {
     this.entityRemoveListeners.push(callback);
   }
 
-  public onCompositionChange(entityId: number, entityComposition: BitVector) {
-    if (this.isInterested(entityComposition)) {
+  public onCompositionChange(
+    entityId: number,
+    entityComposition: BitVector,
+    entityDelete = false
+  ) {
+    if (this.isInterested(entityComposition) && !entityDelete) {
       if (this.entities.get(entityId)) {
         return;
       }

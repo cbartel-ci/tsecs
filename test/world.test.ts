@@ -6,7 +6,7 @@ import {
   ComponentSetBuilder,
 } from '../src';
 
-test('test', () => {
+test('integration test', () => {
   const entitySystemA = new TestEntitySystemA();
   const entitySystemB = new TestEntitySystemB();
   const entitySystemC = new TestEntitySystemC();
@@ -66,6 +66,14 @@ test('test', () => {
     entity2,
     entity3,
   ]);
+
+  world.deleteEntity(entity1);
+  world.update(0);
+  expect(entitySystemA.getEntities()).toStrictEqual([entity4]);
+  expect(entitySystemB.getEntities()).toStrictEqual([entity4]);
+  expect(entitySystemC.getEntities()).toStrictEqual([entity2, entity3]);
+  //gets recycled
+  expect(world.createEntity()).toEqual(entity1);
 });
 
 class TestEntitySystemA extends EntitySystem {
