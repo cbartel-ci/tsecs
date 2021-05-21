@@ -1,7 +1,8 @@
-import { Component } from './';
+import { BitVector, Component } from './';
 
 export class ComponentMapper<T extends Component> {
   private readonly components: { [entityId: number]: T } = {};
+  private readonly cachedDeletions = new BitVector();
 
   constructor(
     private readonly addComponentCallback: (entityId: number) => void,
@@ -14,11 +15,19 @@ export class ComponentMapper<T extends Component> {
   addComponent(entityId: number, component: T): void {
     this.components[entityId] = component;
     this.addComponentCallback(entityId);
+    this.cachedDeletions.clear(entityId);
   }
 
   removeComponent(entityId: number, entityDelete = false): void {
     this.removeComponentCallback(entityId, entityDelete);
-    delete this.components[entityId];
+    this.cachedDeletions.set(entityId);
+  }
+
+  processModifications() {
+    this.cachedDeletions.getBits().forEach(entity => {
+      delete this.components[entity];
+    });
+    this.cachedDeletions.reset();
   }
 
   getComponent(entityId: number): T {

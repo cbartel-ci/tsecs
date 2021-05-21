@@ -12,7 +12,7 @@ export class ComponentRegistry {
   private readonly componentIdentityMap: Map<typeof Component, number>;
   private readonly entityCompositionMap: { [entityId: number]: BitVector };
   private readonly componentMapperMap: {
-    [entityId: number]: ComponentMapper<any>;
+    [componentId: number]: ComponentMapper<any>;
   };
   private readonly componentSets: Array<ComponentSet>;
   private componentIdCounter: number;
@@ -28,6 +28,9 @@ export class ComponentRegistry {
   public update(): void {
     for (const componentSet of this.componentSets) {
       componentSet.processModifications();
+    }
+    for (let componentId in this.componentMapperMap) {
+      this.componentMapperMap[componentId].processModifications();
     }
   }
 
