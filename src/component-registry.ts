@@ -1,10 +1,4 @@
-import {
-  ComponentSet,
-  BitVector,
-  Component,
-  ComponentMapper,
-  ComponentSetBuilder,
-} from './';
+import { ComponentSet, BitVector, Component, ComponentMapper, ComponentSetBuilder } from './';
 
 export class ComponentRegistry {
   private static readonly INITIAL_COMPONENT_CAPACITY = 32;
@@ -43,25 +37,18 @@ export class ComponentRegistry {
     return id;
   }
 
-  public createComponentSet(
-    componentSetBuilder: ComponentSetBuilder
-  ): ComponentSet {
-    let componentSet = componentSetBuilder.build(
-      ComponentRegistry.INITIAL_COMPONENT_CAPACITY,
-      component => this.getComponentId(component)
+  public createComponentSet(componentSetBuilder: ComponentSetBuilder): ComponentSet {
+    let componentSet = componentSetBuilder.build(ComponentRegistry.INITIAL_COMPONENT_CAPACITY, component =>
+      this.getComponentId(component)
     );
     this.componentSets.push(componentSet);
     return componentSet;
   }
 
-  public getComponentMapper<T extends Component>(
-    component: typeof Component
-  ): ComponentMapper<T> {
+  public getComponentMapper<T extends Component>(component: typeof Component): ComponentMapper<T> {
     const componentId = this.getComponentId(component);
     if (!this.componentMapperMap[componentId]) {
-      this.componentMapperMap[componentId] = this.createComponentMapper(
-        componentId
-      );
+      this.componentMapperMap[componentId] = this.createComponentMapper(componentId);
     }
     return this.componentMapperMap[componentId];
   }
@@ -76,9 +63,7 @@ export class ComponentRegistry {
 
   private getEntityComposition(entityId: number): BitVector {
     if (!this.entityCompositionMap[entityId]) {
-      this.entityCompositionMap[entityId] = new BitVector(
-        ComponentRegistry.INITIAL_COMPONENT_CAPACITY
-      );
+      this.entityCompositionMap[entityId] = new BitVector(ComponentRegistry.INITIAL_COMPONENT_CAPACITY);
     }
     return this.entityCompositionMap[entityId];
   }

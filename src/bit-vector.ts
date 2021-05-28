@@ -102,11 +102,7 @@ export class BitVector {
    * @return {boolean} true, if the given mask applies to this BitVector
    */
   public containsAll(other: BitVector): boolean {
-    for (
-      let i = 0;
-      i < Math.min(this.chunks.length, other.chunks.length);
-      i++
-    ) {
+    for (let i = 0; i < Math.min(this.chunks.length, other.chunks.length); i++) {
       if ((this.chunks[i] & other.chunks[i]) !== other.chunks[i]) {
         return false;
       }
@@ -222,9 +218,7 @@ export class BitVector {
     if (this.chunks.length >= capacity) {
       return;
     }
-    const newChunks = new Uint32Array(
-      Math.pow(2, (Math.log2(capacity) >> 0) + 1)
-    );
+    const newChunks = new Uint32Array(Math.pow(2, (Math.log2(capacity) >> 0) + 1));
     newChunks.set(this.chunks, 0);
     this.chunks = newChunks;
   }

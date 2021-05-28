@@ -25,11 +25,7 @@ export class ComponentSet {
     this.entityRemoveListeners.push(callback);
   }
 
-  public onCompositionChange(
-    entityId: number,
-    entityComposition: BitVector,
-    entityDelete = false
-  ) {
+  public onCompositionChange(entityId: number, entityComposition: BitVector, entityDelete = false) {
     if (this.isInterested(entityComposition) && !entityDelete) {
       if (this.entities.get(entityId)) {
         return;
@@ -59,17 +55,11 @@ export class ComponentSet {
   public processModifications() {
     if (this.modified) {
       this.activeEntities = this.entities.getBits();
-      this.entitiesAdded
-        .getBits()
-        .forEach(entity =>
-          this.entityAddListeners.forEach(listener => listener(entity))
-        );
+      this.entitiesAdded.getBits().forEach(entity => this.entityAddListeners.forEach(listener => listener(entity)));
       this.entitiesAdded.reset();
       this.entitiesRemoved
         .getBits()
-        .forEach(entity =>
-          this.entityRemoveListeners.forEach(listener => listener(entity))
-        );
+        .forEach(entity => this.entityRemoveListeners.forEach(listener => listener(entity)));
       this.entitiesRemoved.reset();
     }
     this.modified = false;
@@ -85,31 +75,22 @@ export class ComponentSetBuilder {
   private readonly any: Array<typeof Component> = [];
   private readonly none: Array<typeof Component> = [];
 
-  public containingAll(
-    ...components: Array<typeof Component>
-  ): ComponentSetBuilder {
+  public containingAll(...components: Array<typeof Component>): ComponentSetBuilder {
     this.all.push(...components);
     return this;
   }
 
-  public containingAny(
-    ...components: Array<typeof Component>
-  ): ComponentSetBuilder {
+  public containingAny(...components: Array<typeof Component>): ComponentSetBuilder {
     this.any.push(...components);
     return this;
   }
 
-  public containingNone(
-    ...components: Array<typeof Component>
-  ): ComponentSetBuilder {
+  public containingNone(...components: Array<typeof Component>): ComponentSetBuilder {
     this.none.push(...components);
     return this;
   }
 
-  public build(
-    capacity: number,
-    resolveComponentId: (component: typeof Component) => number
-  ): ComponentSet {
+  public build(capacity: number, resolveComponentId: (component: typeof Component) => number): ComponentSet {
     let allVector: BitVector | null = null;
     let anyVector: BitVector | null = null;
     let noneVector: BitVector | null = null;

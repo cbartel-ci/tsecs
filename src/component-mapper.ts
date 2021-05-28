@@ -6,10 +6,7 @@ export class ComponentMapper<T extends Component> {
 
   constructor(
     private readonly addComponentCallback: (entityId: number) => void,
-    private readonly removeComponentCallback: (
-      entityId: number,
-      entityDelete: boolean
-    ) => void
+    private readonly removeComponentCallback: (entityId: number, entityDelete: boolean) => void
   ) {}
 
   addComponent(entityId: number, component: T): void {

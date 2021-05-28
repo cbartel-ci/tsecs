@@ -1,11 +1,4 @@
-import {
-  EntityRegistry,
-  SystemRegistry,
-  ComponentRegistry,
-  ComponentMapper,
-  Component,
-  System,
-} from './';
+import { EntityRegistry, SystemRegistry, ComponentRegistry, ComponentMapper, Component, System } from './';
 
 export class World {
   constructor(
@@ -40,9 +33,7 @@ export class World {
     this.entityRegistry.deleteEntity(entity);
   }
 
-  getComponentMapper<T extends Component>(
-    component: typeof Component
-  ): ComponentMapper<T> {
+  getComponentMapper<T extends Component>(component: typeof Component): ComponentMapper<T> {
     return this.componentRegistry.getComponentMapper(component);
   }
 }
@@ -55,9 +46,17 @@ export class WorldBuilder {
     const systemRegistry = new SystemRegistry(this.systems);
     const componentRegistry = new ComponentRegistry();
 
-    entityRegistry.onEntityDelete(entity =>
-      componentRegistry.processEntityDelete(entity)
-    );
+    entityRegistry.onEntityDelete(entity => componentRegistry.processEntityDelete(entity));
+
+    // inject component mapper into systems
+    this.systems.forEach((system: any) => {
+      const proto = Object.getPrototypeOf(system);
+      const componentMappers = proto.__componentMappers || {};
+      Object.keys(componentMappers).forEach((key: any) => {
+        const componentType = componentMappers[key];
+        system[key] = componentRegistry.getComponentMapper(componentType);
+      });
+    });
 
     const world = new World(entityRegistry, systemRegistry, componentRegistry);
 
