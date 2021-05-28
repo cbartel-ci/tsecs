@@ -3,6 +3,7 @@ export * from './component';
 export * from './component-mapper';
 export * from './component-registry';
 export * from './component-set';
+export * from './decorator';
 export * from './entity-registry';
 export * from './system-registry';
 export * from './system';
