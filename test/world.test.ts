@@ -12,44 +12,44 @@ test('integration test', () => {
   const componentCMapper = world.getComponentMapper<TestComponentC>(TestComponentC);
   const componentDMapper = world.getComponentMapper<TestComponentD>(TestComponentD);
 
-  let entity1 = world.createEntity();
+  let entity1 = world.createEntityId();
   componentAMapper.addComponent(entity1, new TestComponentA());
   componentBMapper.addComponent(entity1, new TestComponentB());
   componentCMapper.addComponent(entity1, new TestComponentC());
   componentDMapper.addComponent(entity1, new TestComponentD());
 
-  let entity2 = world.createEntity();
+  let entity2 = world.createEntityId();
   componentAMapper.addComponent(entity2, new TestComponentA());
   componentBMapper.addComponent(entity2, new TestComponentB());
 
-  let entity3 = world.createEntity();
+  let entity3 = world.createEntityId();
   componentBMapper.addComponent(entity3, new TestComponentB());
   componentCMapper.addComponent(entity3, new TestComponentC());
 
-  let entity4 = world.createEntity();
+  let entity4 = world.createEntityId();
   componentAMapper.addComponent(entity4, new TestComponentA());
   componentDMapper.addComponent(entity4, new TestComponentD());
 
   world.update(0);
-  expect(entitySystemA.getEntities()).toStrictEqual([entity1, entity2, entity4]);
-  expect(entitySystemB.getEntities()).toStrictEqual([entity1, entity4]);
-  expect(entitySystemC.getEntities()).toStrictEqual([entity3]);
+  expect(entitySystemA.getEntityIds()).toStrictEqual([entity1, entity2, entity4]);
+  expect(entitySystemB.getEntityIds()).toStrictEqual([entity1, entity4]);
+  expect(entitySystemC.getEntityIds()).toStrictEqual([entity3]);
 
   componentAMapper.removeComponent(entity1);
   componentAMapper.removeComponent(entity2);
 
   world.update(0);
-  expect(entitySystemA.getEntities()).toStrictEqual([entity1, entity4]);
-  expect(entitySystemB.getEntities()).toStrictEqual([entity4]);
-  expect(entitySystemC.getEntities()).toStrictEqual([entity1, entity2, entity3]);
+  expect(entitySystemA.getEntityIds()).toStrictEqual([entity1, entity4]);
+  expect(entitySystemB.getEntityIds()).toStrictEqual([entity4]);
+  expect(entitySystemC.getEntityIds()).toStrictEqual([entity1, entity2, entity3]);
 
-  world.deleteEntity(entity1);
+  world.deleteEntityById(entity1);
   world.update(0);
-  expect(entitySystemA.getEntities()).toStrictEqual([entity4]);
-  expect(entitySystemB.getEntities()).toStrictEqual([entity4]);
-  expect(entitySystemC.getEntities()).toStrictEqual([entity2, entity3]);
+  expect(entitySystemA.getEntityIds()).toStrictEqual([entity4]);
+  expect(entitySystemB.getEntityIds()).toStrictEqual([entity4]);
+  expect(entitySystemC.getEntityIds()).toStrictEqual([entity2, entity3]);
   //gets recycled
-  expect(world.createEntity()).toEqual(entity1);
+  expect(world.createEntityId()).toEqual(entity1);
 });
 
 class TestComponentA extends Component {}

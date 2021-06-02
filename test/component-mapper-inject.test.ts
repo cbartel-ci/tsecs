@@ -1,5 +1,4 @@
-import { ComponentMapper, System, WorldBuilder } from '../src';
-import { Mapper } from '../src/decorator';
+import { ComponentMapper, Mapper, System, WorldBuilder } from '../src';
 
 test('Component Mapper Inject Test', () => {
   const world = new WorldBuilder().with(new TestSystem()).build();
@@ -22,7 +21,7 @@ class TestSystem extends System {
   private readonly componentBMapper!: ComponentMapper<ComponentB>;
 
   onInit(): void {
-    const entity = this.getWorld().createEntity();
+    const entity = this.getWorld().createEntityId();
     const componentA = new ComponentA();
     componentA.name = 'test';
     const componentB = new ComponentB();

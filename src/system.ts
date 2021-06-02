@@ -1,4 +1,5 @@
-import { ComponentSet, ComponentSetBuilder, World } from './';
+import { ComponentSet, ComponentSetBuilder, Entity, World } from './';
+import { AbstractEntityCollection, EntityCollection, FastEntityCollection } from './entity-collection';
 
 export abstract class System {
   private _world!: World;
@@ -19,23 +20,49 @@ export abstract class System {
   abstract onUpdate(dt: number): void;
 }
 
-export abstract class EntitySystem extends System {
+export abstract class AbstractEntitySystem<T> extends System {
   private _componentSet!: ComponentSet;
 
   _init(world: World) {
     let componentSetBuilder = this.initComponentSet(new ComponentSetBuilder());
     this._componentSet = world.getComponentRegistry().createComponentSet(componentSetBuilder);
-    this._componentSet.onEntityAdd(entityId => this.onEntityAdd(entityId));
-    this._componentSet.onEntityRemove(entityId => this.onEntityRemove(entityId));
+    this._componentSet.onEntityAdd(entityId => this.onEntityAdd(this.mapEntityId(entityId)));
+    this._componentSet.onEntityRemove(entityId => this.onEntityRemove(this.mapEntityId(entityId)));
     super._init(world);
   }
 
-  public getEntities(): number[] {
+  public getEntityIds(): number[] {
     return this._componentSet.getActiveEntities();
   }
 
-  abstract initComponentSet(componentSetBuilder: ComponentSetBuilder): ComponentSetBuilder;
+  public abstract getEntities(): AbstractEntityCollection<T>;
 
-  onEntityAdd(_entity: number): void {}
-  onEntityRemove(_entity: number): void {}
+  protected abstract initComponentSet(componentSetBuilder: ComponentSetBuilder): ComponentSetBuilder;
+
+  protected abstract mapEntityId(entityId: number): T;
+
+  onEntityAdd(entity: T): void {}
+  onEntityRemove(entity: T): void {}
+}
+
+export abstract class FastEntitySystem extends AbstractEntitySystem<number> {
+  protected mapEntityId(entityId: number): number {
+    return entityId;
+  }
+
+  public getEntities(): AbstractEntityCollection<number> {
+    return new FastEntityCollection(this.getEntityIds());
+  }
+}
+
+export abstract class EntitySystem extends AbstractEntitySystem<Entity> {
+  protected mapEntityId(entityId: number): Entity {
+    return this.getWorld()
+      .getEntityRegistry()
+      .getEntity(entityId);
+  }
+
+  public getEntities(): AbstractEntityCollection<Entity> {
+    return new EntityCollection(this.getEntityIds(), this.getWorld());
+  }
 }

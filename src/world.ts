@@ -1,6 +1,19 @@
-import { EntityRegistry, SystemRegistry, ComponentRegistry, ComponentMapper, Component, System } from './';
+import {
+  EntityRegistry,
+  SystemRegistry,
+  ComponentRegistry,
+  ComponentMapper,
+  Component,
+  System,
+  Entity,
+  EntityFactory,
+} from './';
 
 export class World {
+  public static builder(): WorldBuilder {
+    return new WorldBuilder();
+  }
+
   constructor(
     private readonly entityRegistry: EntityRegistry,
     private readonly systemRegistry: SystemRegistry,
@@ -25,16 +38,33 @@ export class World {
     return this.componentRegistry;
   }
 
-  public createEntity(): number {
-    return this.entityRegistry.createEntity();
+  public createEntityId(): number {
+    return this.entityRegistry.createEntityId();
   }
 
-  public deleteEntity(entity: number): void {
-    this.entityRegistry.deleteEntity(entity);
+  public deleteEntityById(entity: number): void {
+    this.entityRegistry.deleteEntityById(entity);
   }
 
-  getComponentMapper<T extends Component>(component: typeof Component): ComponentMapper<T> {
+  public getEntity(entityId: number): Entity {
+    return this.entityRegistry.getEntity(entityId);
+  }
+
+  public createEntity(): Entity {
+    return this.getEntity(this.createEntityId());
+  }
+
+  public getComponentMapper<T extends Component>(component: typeof Component): ComponentMapper<T> {
     return this.componentRegistry.getComponentMapper(component);
+  }
+
+  public injectComponentMappers(object: any) {
+    const proto = Object.getPrototypeOf(object);
+    const componentMappers = proto.__componentMappers || {};
+    Object.keys(componentMappers).forEach((key: any) => {
+      const componentType = componentMappers[key];
+      object[key] = this.getComponentMapper(componentType);
+    });
   }
 }
 
@@ -48,17 +78,13 @@ export class WorldBuilder {
 
     entityRegistry.onEntityDelete(entity => componentRegistry.processEntityDelete(entity));
 
-    // inject component mapper into systems
+    const world = new World(entityRegistry, systemRegistry, componentRegistry);
+
     this.systems.forEach((system: any) => {
-      const proto = Object.getPrototypeOf(system);
-      const componentMappers = proto.__componentMappers || {};
-      Object.keys(componentMappers).forEach((key: any) => {
-        const componentType = componentMappers[key];
-        system[key] = componentRegistry.getComponentMapper(componentType);
-      });
+      world.injectComponentMappers(system);
     });
 
-    const world = new World(entityRegistry, systemRegistry, componentRegistry);
+    entityRegistry.setEntityFactory(new EntityFactory(world));
 
     this.systems.forEach(system => system._init(world));
     this.systems.forEach(system => system.onInit());

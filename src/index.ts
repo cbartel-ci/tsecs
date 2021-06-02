@@ -4,6 +4,8 @@ export * from './component-mapper';
 export * from './component-registry';
 export * from './component-set';
 export * from './decorator';
+export * from './entity';
+export * from './entity-collection';
 export * from './entity-registry';
 export * from './system-registry';
 export * from './system';
