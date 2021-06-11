@@ -7,6 +7,8 @@ export class EntityRegistry {
   private entities: { [entityId: number]: Entity } = {};
   private entityFactory!: EntityFactory;
   private entityDeleteListeners: ((entityId: number) => void)[] = [];
+  private aliasToEntityIdMap: { [alias: string]: number } = {};
+  private entityIdToAliasMap: { [entityId: number]: string } = {};
 
   public setEntityFactory(entityFactory: EntityFactory) {
     this.entityFactory = entityFactory;
@@ -37,6 +39,15 @@ export class EntityRegistry {
     return entity;
   }
 
+  public getEntityByAlias(alias: string): Entity {
+    return this.getEntity(this.aliasToEntityIdMap[alias]);
+  }
+
+  public registerAlias(entityId: number, alias: string) {
+    this.entityIdToAliasMap[entityId] = alias;
+    this.aliasToEntityIdMap[alias] = entityId;
+  }
+
   public update(): void {
     while (this.deletedEntities.length !== 0) {
       const entity = this.deletedEntities.pop()!;
@@ -44,6 +55,11 @@ export class EntityRegistry {
         this.entityDeleteListeners.forEach(listener => listener(entity));
       } finally {
         this.recycleableEntities.push(entity);
+        const alias = this.entityIdToAliasMap[entity];
+        if (alias) {
+          delete this.entityIdToAliasMap[entity];
+          delete this.aliasToEntityIdMap[alias];
+        }
       }
     }
   }

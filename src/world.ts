@@ -33,10 +33,6 @@ export class World {
     return this.entityRegistry;
   }
 
-  public getSystemRegistry(): SystemRegistry {
-    return this.systemRegistry;
-  }
-
   public getComponentRegistry(): ComponentRegistry {
     return this.componentRegistry;
   }
@@ -49,10 +45,16 @@ export class World {
     this.entityRegistry.deleteEntityById(entity);
   }
 
-  public getEntity(entityId: number): Entity {
-    return this.entityRegistry.getEntity(entityId);
+  public getEntity(alias: string): Entity;
+  public getEntity(entityId: number): Entity;
+  public getEntity(entityIdOrAlias: number | string): Entity {
+    return typeof entityIdOrAlias === 'number'
+      ? this.entityRegistry.getEntity(entityIdOrAlias as number)
+      : this.entityRegistry.getEntityByAlias(entityIdOrAlias as string);
   }
 
+  public createEntity(): Entity;
+  public createEntity(blueprint: string): Entity;
   public createEntity(blueprint?: string): Entity {
     const entity = this.getEntity(this.createEntityId());
     if (blueprint) {
@@ -77,6 +79,10 @@ export class World {
   public registerBlueprint(blueprint: Blueprint) {
     const blueprintConfiguration = this.componentRegistry.getBlueprintConfiguration(blueprint);
     this.blueprintRegistry.registerBlueprint(blueprint.name, blueprintConfiguration);
+  }
+
+  public registerAlias(entityId: number, name: string) {
+    this.entityRegistry.registerAlias(entityId, name);
   }
 }
 

@@ -40,6 +40,11 @@ export class Entity {
   public delete() {
     this.world.getEntityRegistry().deleteEntityById(this.entityId);
   }
+
+  public setAlias(alias: string): Entity {
+    this.getWorld().registerAlias(this.entityId, alias);
+    return this;
+  }
 }
 
 export class EntityFactory {
