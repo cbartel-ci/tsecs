@@ -1,33 +1,39 @@
 import { BitVector, Component } from './';
 
-export class ComponentMapper<T extends Component> {
+export interface ComponentMapper<T extends Component> {
+  addComponent(entityId: number, component: T): void;
+  removeComponent(entityId: number): void;
+  getComponent(entityId: number): T;
+}
+
+export class ComponentMapperImpl<T extends Component> implements ComponentMapper<T> {
   private readonly components: { [entityId: number]: T } = {};
   private readonly cachedDeletions = new BitVector();
 
   constructor(
-    private readonly addComponentCallback: (entityId: number) => void,
+    private readonly addComponentCallback: (entityId: number, blueprintAdd: boolean) => void,
     private readonly removeComponentCallback: (entityId: number, entityDelete: boolean) => void
   ) {}
 
-  addComponent(entityId: number, component: T): void {
+  public addComponent(entityId: number, component: T, blueprintAdd = false): void {
     this.components[entityId] = component;
-    this.addComponentCallback(entityId);
+    this.addComponentCallback(entityId, blueprintAdd);
     this.cachedDeletions.clear(entityId);
   }
 
-  removeComponent(entityId: number, entityDelete = false): void {
+  public removeComponent(entityId: number, entityDelete = false): void {
     this.removeComponentCallback(entityId, entityDelete);
     this.cachedDeletions.set(entityId);
   }
 
-  processModifications() {
+  public processModifications() {
     this.cachedDeletions.getBits().forEach(entity => {
       delete this.components[entity];
     });
     this.cachedDeletions.reset();
   }
 
-  getComponent(entityId: number): T {
+  public getComponent(entityId: number): T {
     return this.components[entityId];
   }
 }

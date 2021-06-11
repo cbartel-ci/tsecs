@@ -42,7 +42,13 @@ export class ComponentSet {
     }
   }
 
-  private isInterested(entityComposition: BitVector) {
+  public add(entityId: number) {
+    this.entities.set(entityId);
+    this.entitiesAdded.set(entityId);
+    this.modified = true;
+  }
+
+  public isInterested(entityComposition: BitVector) {
     if (this.all && !entityComposition.containsAll(this.all)) {
       return false;
     }

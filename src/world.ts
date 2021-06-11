@@ -7,7 +7,9 @@ import {
   System,
   Entity,
   EntityFactory,
+  Blueprint,
 } from './';
+import { BlueprintRegistry } from './blueprint-registry';
 
 export class World {
   public static builder(): WorldBuilder {
@@ -17,7 +19,8 @@ export class World {
   constructor(
     private readonly entityRegistry: EntityRegistry,
     private readonly systemRegistry: SystemRegistry,
-    private readonly componentRegistry: ComponentRegistry
+    private readonly componentRegistry: ComponentRegistry,
+    private readonly blueprintRegistry: BlueprintRegistry
   ) {}
 
   public update(dt: number): void {
@@ -50,8 +53,12 @@ export class World {
     return this.entityRegistry.getEntity(entityId);
   }
 
-  public createEntity(): Entity {
-    return this.getEntity(this.createEntityId());
+  public createEntity(blueprint?: string): Entity {
+    const entity = this.getEntity(this.createEntityId());
+    if (blueprint) {
+      this.blueprintRegistry.applyBlueprint(entity.getEntityId(), blueprint);
+    }
+    return entity;
   }
 
   public getComponentMapper<T extends Component>(component: typeof Component): ComponentMapper<T> {
@@ -66,6 +73,11 @@ export class World {
       object[key] = this.getComponentMapper(componentType);
     });
   }
+
+  public registerBlueprint(blueprint: Blueprint) {
+    const blueprintConfiguration = this.componentRegistry.getBlueprintConfiguration(blueprint);
+    this.blueprintRegistry.registerBlueprint(blueprint.name, blueprintConfiguration);
+  }
 }
 
 export class WorldBuilder {
@@ -75,10 +87,11 @@ export class WorldBuilder {
     const entityRegistry = new EntityRegistry();
     const systemRegistry = new SystemRegistry(this.systems);
     const componentRegistry = new ComponentRegistry();
+    const blueprintRegistry = new BlueprintRegistry();
 
     entityRegistry.onEntityDelete(entity => componentRegistry.processEntityDelete(entity));
 
-    const world = new World(entityRegistry, systemRegistry, componentRegistry);
+    const world = new World(entityRegistry, systemRegistry, componentRegistry, blueprintRegistry);
 
     this.systems.forEach((system: any) => {
       world.injectComponentMappers(system);

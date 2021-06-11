@@ -1,4 +1,13 @@
-import { ComponentSet, BitVector, Component, ComponentMapper, ComponentSetBuilder } from './';
+import {
+  ComponentSet,
+  BitVector,
+  Component,
+  ComponentMapper,
+  ComponentSetBuilder,
+  Blueprint,
+  BlueprintComponentConfiguration,
+  ComponentMapperImpl,
+} from './';
 
 export class ComponentRegistry {
   private static readonly INITIAL_COMPONENT_CAPACITY = 32;
@@ -6,7 +15,7 @@ export class ComponentRegistry {
   private readonly componentIdentityMap: Map<typeof Component, number>;
   private readonly entityCompositionMap: { [entityId: number]: BitVector };
   private readonly componentMapperMap: {
-    [componentId: number]: ComponentMapper<any>;
+    [componentId: number]: ComponentMapperImpl<any>;
   };
   private readonly componentSets: Array<ComponentSet>;
   private componentIdCounter: number;
@@ -61,6 +70,35 @@ export class ComponentRegistry {
     });
   }
 
+  public getBlueprintConfiguration(blueprint: Blueprint): BlueprintComponentConfiguration {
+    const blueprintConfiguration: BlueprintComponentConfiguration = {
+      componentMapperConfigurations: [],
+      componentSets: [],
+    };
+
+    const composition = new BitVector();
+    blueprint.components
+      .map(component => this.getComponentId(component.type))
+      .forEach(componentId => {
+        composition.set(componentId);
+      });
+    this.componentSets.forEach(componentSet => {
+      if (componentSet.isInterested(composition)) {
+        blueprintConfiguration.componentSets.push(componentSet);
+      }
+    });
+
+    blueprint.components.forEach(it => {
+      blueprintConfiguration.componentMapperConfigurations.push({
+        mapper: this.getComponentMapper(it.type) as ComponentMapperImpl<any>,
+        componentType: it.type,
+        component: it.component,
+      });
+    });
+
+    return blueprintConfiguration;
+  }
+
   private getEntityComposition(entityId: number): BitVector {
     if (!this.entityCompositionMap[entityId]) {
       this.entityCompositionMap[entityId] = new BitVector(ComponentRegistry.INITIAL_COMPONENT_CAPACITY);
@@ -68,11 +106,14 @@ export class ComponentRegistry {
     return this.entityCompositionMap[entityId];
   }
 
-  private createComponentMapper(componentId: number): ComponentMapper<any> {
-    return new ComponentMapper(
-      (entityId: number) => {
+  private createComponentMapper(componentId: number): ComponentMapperImpl<any> {
+    return new ComponentMapperImpl(
+      (entityId: number, blueprintAdd: boolean) => {
         const composition = this.getEntityComposition(entityId);
         composition.set(componentId);
+        if (blueprintAdd) {
+          return;
+        }
         for (const componentSet of this.componentSets) {
           componentSet.onCompositionChange(entityId, composition);
         }
