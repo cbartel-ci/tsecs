@@ -1,5 +1,6 @@
 export * from './bit-vector';
 export * from './blueprint';
+export * from './blueprint-registry';
 export * from './component';
 export * from './component-mapper';
 export * from './component-registry';
