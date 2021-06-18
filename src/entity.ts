@@ -1,5 +1,5 @@
 import { World } from './world';
-import { Component } from './component';
+import { Component, ComponentType } from './component';
 
 export class Entity {
   private readonly entityId: number;
@@ -26,11 +26,11 @@ export class Entity {
     return this;
   }
 
-  public getComponent<T extends Component>(componentType: typeof Component): T {
+  public getComponent<T extends Component>(componentType: ComponentType<T>): T {
     return this.world.getComponentMapper(componentType).getComponent(this.entityId) as T;
   }
 
-  public removeComponent(...componentTypes: typeof Component[]): Entity {
+  public removeComponent(...componentTypes: ComponentType<any>[]): Entity {
     componentTypes.forEach(componentType => {
       this.world.getComponentMapper(componentType).removeComponent(this.entityId);
     });

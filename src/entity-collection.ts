@@ -17,12 +17,6 @@ export abstract class AbstractEntityCollection<T> {
   }
 }
 
-export class FastEntityCollection extends AbstractEntityCollection<number> {
-  protected mapEntityId(entityId: number): number {
-    return entityId;
-  }
-}
-
 export class EntityCollection extends AbstractEntityCollection<Entity> {
   protected readonly world: World;
 

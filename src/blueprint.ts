@@ -1,4 +1,4 @@
-import { Component } from './component';
+import { Component, ComponentType } from './component';
 import { ComponentSet } from './component-set';
 import { ComponentMapperImpl } from './component-mapper';
 
@@ -8,7 +8,7 @@ export interface Blueprint {
 }
 
 export interface BlueprintComponentDefinition {
-  type: typeof Component;
+  type: ComponentType<any>;
   component?: Component;
 }
 
@@ -18,7 +18,7 @@ export interface BlueprintComponentConfiguration {
 }
 
 export interface BlueprintComponentMapperConfiguration {
-  componentType: typeof Component;
+  componentType: ComponentType<any>;
   component: Component | undefined;
   mapper: ComponentMapperImpl<any>;
 }

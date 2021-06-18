@@ -7,12 +7,13 @@ import {
   Blueprint,
   BlueprintComponentConfiguration,
   ComponentMapperImpl,
+  ComponentType,
 } from './';
 
 export class ComponentRegistry {
   private static readonly INITIAL_COMPONENT_CAPACITY = 32;
 
-  private readonly componentIdentityMap: Map<typeof Component, number>;
+  private readonly componentIdentityMap: Map<ComponentType<any>, number>;
   private readonly entityCompositionMap: { [entityId: number]: BitVector };
   private readonly componentMapperMap: {
     [componentId: number]: ComponentMapperImpl<any>;
@@ -21,7 +22,7 @@ export class ComponentRegistry {
   private componentIdCounter: number;
 
   constructor() {
-    this.componentIdentityMap = new Map<typeof Component, number>();
+    this.componentIdentityMap = new Map<ComponentType<any>, number>();
     this.entityCompositionMap = {};
     this.componentMapperMap = {};
     this.componentSets = [];
@@ -37,7 +38,7 @@ export class ComponentRegistry {
     }
   }
 
-  public getComponentId(component: typeof Component): number {
+  public getComponentId(component: ComponentType<any>): number {
     let id = this.componentIdentityMap.get(component);
     if (id == null) {
       id = this.componentIdCounter++;
@@ -54,7 +55,7 @@ export class ComponentRegistry {
     return componentSet;
   }
 
-  public getComponentMapper<T extends Component>(component: typeof Component): ComponentMapper<T> {
+  public getComponentMapper<T extends Component>(component: ComponentType<T>): ComponentMapper<T> {
     const componentId = this.getComponentId(component);
     if (!this.componentMapperMap[componentId]) {
       this.componentMapperMap[componentId] = this.createComponentMapper(componentId);

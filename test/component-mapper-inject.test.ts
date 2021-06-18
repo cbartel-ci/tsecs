@@ -2,8 +2,8 @@ import { ComponentMapper, Mapper, System, WorldBuilder } from '../src';
 
 test('Component Mapper Inject Test', () => {
   const world = new WorldBuilder().with(new TestSystem()).build();
-  expect(world.getComponentMapper<ComponentA>(ComponentA).getComponent(0).name).toEqual('test');
-  expect(world.getComponentMapper<ComponentB>(ComponentB).getComponent(0).i).toEqual(42);
+  expect(world.getComponentMapper(ComponentA).getComponent(0).name).toEqual('test');
+  expect(world.getComponentMapper(ComponentB).getComponent(0).i).toEqual(42);
 });
 
 class ComponentA {

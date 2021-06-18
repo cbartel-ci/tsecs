@@ -7,7 +7,7 @@ test('entity test', () => {
   testComponentA.name = 'test';
   entity.addComponent(testComponentA);
   world.update(1);
-  expect(entity.getComponent<TestComponentA>(TestComponentA).name).toEqual('test');
+  expect(entity.getComponent(TestComponentA).name).toEqual('test');
   entity.removeComponent(TestComponentA);
   world.update(2);
   expect(entity.getComponent(TestComponentA)).toBeUndefined();

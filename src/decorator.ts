@@ -1,6 +1,6 @@
-import { Component } from '.';
+import { ComponentType } from '.';
 
-export const Mapper = function(componentType: typeof Component) {
+export const Mapper = function(componentType: ComponentType<any>) {
   return function(prototype: any, key: string) {
     let componentMapper = prototype['__componentMappers'] || {};
     componentMapper[key] = componentType;

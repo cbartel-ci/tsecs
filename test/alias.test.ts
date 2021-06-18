@@ -16,15 +16,15 @@ test('Simple Alias Test', () => {
   world
     .createEntity('test')
     .setAlias('aliastest')
-    .getComponent<TestComponentA>(TestComponentA).value = 'stringvalue';
+    .getComponent(TestComponentA).value = 'stringvalue';
 
   world
     .createEntity('test')
     .setAlias('anotheralias')
-    .getComponent<TestComponentB>(TestComponentB).value = 42;
+    .getComponent(TestComponentB).value = 42;
 
-  expect(world.getEntity('aliastest').getComponent<TestComponentA>(TestComponentA).value).toEqual('stringvalue');
-  expect(world.getEntity('anotheralias').getComponent<TestComponentB>(TestComponentB).value).toEqual(42);
+  expect(world.getEntity('aliastest').getComponent(TestComponentA).value).toEqual('stringvalue');
+  expect(world.getEntity('anotheralias').getComponent(TestComponentB).value).toEqual(42);
 });
 
 class TestComponentA extends Component {

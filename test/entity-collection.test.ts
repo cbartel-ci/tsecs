@@ -8,7 +8,7 @@ test('entity collection test', () => {
   world.update(1);
 
   const entity = world.getEntity(0);
-  expect(entity.getComponent<TestComponentA>(TestComponentA).name).toEqual('test');
+  expect(entity.getComponent(TestComponentA).name).toEqual('test');
 });
 
 class TestComponentA {
@@ -28,7 +28,7 @@ class TestSystem extends EntitySystem {
 
   onUpdate(dt: number): void {
     this.getEntities().forEach(entity => {
-      entity.getComponent<TestComponentA>(TestComponentA).name = 'test';
+      entity.getComponent(TestComponentA).name = 'test';
     });
   }
 }

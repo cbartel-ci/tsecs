@@ -1,5 +1,5 @@
 import { ComponentSet, ComponentSetBuilder, Entity, World } from './';
-import { AbstractEntityCollection, EntityCollection, FastEntityCollection } from './entity-collection';
+import { AbstractEntityCollection, EntityCollection } from './entity-collection';
 
 export abstract class System {
   private _world!: World;
@@ -43,16 +43,6 @@ export abstract class AbstractEntitySystem<T> extends System {
 
   onEntityAdd(entity: T): void {}
   onEntityRemove(entity: T): void {}
-}
-
-export abstract class FastEntitySystem extends AbstractEntitySystem<number> {
-  protected mapEntityId(entityId: number): number {
-    return entityId;
-  }
-
-  public getEntities(): AbstractEntityCollection<number> {
-    return new FastEntityCollection(this.getEntityIds());
-  }
 }
 
 export abstract class EntitySystem extends AbstractEntitySystem<Entity> {

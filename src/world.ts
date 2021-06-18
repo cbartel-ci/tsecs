@@ -8,6 +8,10 @@ import {
   Entity,
   EntityFactory,
   Blueprint,
+  ComponentType,
+  EventRegistry,
+  EventType,
+  EventListener,
 } from './';
 import { BlueprintRegistry } from './blueprint-registry';
 
@@ -20,12 +24,14 @@ export class World {
     private readonly entityRegistry: EntityRegistry,
     private readonly systemRegistry: SystemRegistry,
     private readonly componentRegistry: ComponentRegistry,
-    private readonly blueprintRegistry: BlueprintRegistry
+    private readonly blueprintRegistry: BlueprintRegistry,
+    private readonly eventRegistry: EventRegistry
   ) {}
 
   public update(dt: number): void {
     this.entityRegistry.update();
     this.componentRegistry.update();
+    this.eventRegistry.update();
     this.systemRegistry.update(dt);
   }
 
@@ -63,7 +69,7 @@ export class World {
     return entity;
   }
 
-  public getComponentMapper<T extends Component>(component: typeof Component): ComponentMapper<T> {
+  public getComponentMapper<T extends Component>(component: ComponentType<T>): ComponentMapper<T> {
     return this.componentRegistry.getComponentMapper(component);
   }
 
@@ -84,6 +90,14 @@ export class World {
   public registerAlias(entityId: number, name: string) {
     this.entityRegistry.registerAlias(entityId, name);
   }
+
+  public registerListener<T extends Event>(eventType: EventType<T>, listener: EventListener<T>) {
+    this.eventRegistry.registerListener(eventType, listener);
+  }
+
+  public submit<T extends Event>(eventType: EventType<T>, event: T) {
+    this.eventRegistry.submit(eventType, event);
+  }
 }
 
 export class WorldBuilder {
@@ -94,10 +108,11 @@ export class WorldBuilder {
     const systemRegistry = new SystemRegistry(this.systems);
     const componentRegistry = new ComponentRegistry();
     const blueprintRegistry = new BlueprintRegistry();
+    const eventRegistry = new EventRegistry();
 
     entityRegistry.onEntityDelete(entity => componentRegistry.processEntityDelete(entity));
 
-    const world = new World(entityRegistry, systemRegistry, componentRegistry, blueprintRegistry);
+    const world = new World(entityRegistry, systemRegistry, componentRegistry, blueprintRegistry, eventRegistry);
 
     this.systems.forEach((system: any) => {
       world.injectComponentMappers(system);
